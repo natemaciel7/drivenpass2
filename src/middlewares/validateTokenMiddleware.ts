@@ -4,13 +4,16 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-export async function validateToken(
+export function validateToken(
   req: Request,
   res: Response,
   next: NextFunction
-) {
+): void {
   const authHeader = req.headers.authorization;
-  if (!authHeader) return res.status(401).send("Missing token");
+  if (!authHeader) {
+    res.status(401).send("Missing token");
+    return;
+  }
 
   const token = authHeader.replace("Bearer ", "");
 
@@ -19,6 +22,6 @@ export async function validateToken(
     res.locals.user = decoded;
     next();
   } catch {
-    return res.status(401).send("Invalid token");
+    res.status(401).send("Invalid token");
   }
 }
