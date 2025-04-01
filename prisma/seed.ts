@@ -4,22 +4,25 @@ import bcrypt from "bcrypt";
 const prisma = new PrismaClient();
 
 async function main() {
-  const hashedPassword = await bcrypt.hash("demo123", 10);
+  const email = "demo@driven.com.br";
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) return;
 
-  await prisma.user.upsert({
-    where: { email: "demo@driven.com.br" },
-    update: {},
-    create: {
+  const hashedPassword = await bcrypt.hash("demo123", 10);
+  await prisma.user.create({
+    data: {
       name: "Demo",
-      email: "demo@driven.com.br",
+      email,
       password: hashedPassword,
     },
   });
+
+  console.log("✅ Usuário demo criado com sucesso.");
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error("Erro ao seedar:", e);
     process.exit(1);
   })
   .finally(async () => {
